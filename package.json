@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "backend": "npm run dev --prefix Label/backend",
+    "frontend": "http-server Label -p 5500",
+    "start": "concurrently \"npm run backend\" \"npm run frontend\""
+  }
+}
