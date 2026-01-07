@@ -1,53 +1,97 @@
-import express from "express";
-import cors from "cors";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
-
 dotenv.config();
 
-// ✅ Crear la aplicación Express
+// index.js
+import express from "express";
+import cors from "cors";
+
+// Inicializar Express
 const app = express();
-
-// ✅ Configuración de CORS
 app.use(cors({ origin: "*" }));
-
-// ✅ Middleware para parsear JSON
 app.use(express.json());
 
-const PORT = process.env.PORT || 3001;
-
-// Endpoint de salud
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", time: new Date().toISOString() });
+// Ruta raíz
+app.get("/", (req, res) => {
+  res.send("Bienvenido al backend IA UNETI 🚀");
 });
 
-// Endpoint de búsqueda
-app.post("/api/search", async (req, res) => {
-  const { query } = req.body;
-  if (!query) return res.status(400).json({ error: "Falta 'query'." });
+// Ruta de salud
+app.get("/health", (req, res) => {
+  res.send("Backend activo ✅");
+});
 
+// Ruta de búsqueda simulada
+app.get("/api/search", (req, res) => {
+  const consulta = req.query.q || "sin consulta";
+  res.json({ consulta, resultado: `Respuesta simulada para: ${consulta}` });
+});
+
+// Ruta para generar imagen con PIAPI
+app.post("/api/generate-image", async (req, res) => {
   try {
-    // 🔎 Fallback: consulta a Wikipedia
-    const wikiUrl = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
-    const w = await fetch(wikiUrl);
+    const { prompt, size = "512x512", model = "stable-v1" } = req.body;
 
-    if (w.ok) {
-      const wData = await w.json();
-      return res.json({
-        source: "wikipedia",
-        summary: wData.extract || "No se encontró información.",
-        url: wData.content_urls?.desktop?.page || null
+    if (!prompt) {
+      return res.status(400).json({ error: "Falta el prompt" });
+    }
+
+    const apiKey = process.env.PIAPI_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "API key no configurada en Render" });
+    }
+
+    const response = await fetch("https://api.piapi.com/v1/images/generate", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt, size, model })
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("PIAPI error:", response.status, errBody);
+      return res.status(response.status).json({
+        error: "Fallo en PIAPI",
+        details: errBody
       });
     }
 
-    res.json({ source: "none", results: [], message: "Sin resultados." });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Error en el motor de búsqueda." });
+    const data = await response.json(); // Ejemplo: { image_url: "https://..." }
+    return res.json(data);
+  } catch (error) {
+    console.error("Error interno:", error);
+    res.status(500).json({ error: "Error interno al generar la imagen" });
   }
 });
 
-// ✅ Arranque del servidor
+
+    const response = await fetch("https://api.piapi.com/v1/images/generate", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt, size, model })
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("PIAPI error:", response.status, errBody);
+      return res.status(response.status).json({ error: "Fallo en PIAPI", details: errBody });
+    }
+
+    const data = await response.json(); // Ejemplo: { image_url: "https://..." }
+    return res.json(data);
+  } catch (error) {
+    console.error("Error interno:", error);
+    res.status(500).json({ error: "Error interno al generar la imagen" });
+  }
+});
+
+// Puerto dinámico para Render
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`✅ Backend corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
