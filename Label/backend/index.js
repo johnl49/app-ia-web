@@ -34,18 +34,23 @@ app.get("/api/search", (req, res) => {
 app.post("/api/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body;
+
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({ error: "Falta el prompt" });
     }
+
+    // Mock temporal: devuelve una URL simulada con dummyimage.com
     const data = {
       url: `https://dummyimage.com/512x512/000/fff&text=${encodeURIComponent(prompt)}`
     };
+
     return res.json(data);
   } catch (error) {
     console.error("Error interno:", error);
     res.status(500).json({ error: "Error interno al generar la imagen" });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
