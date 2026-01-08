@@ -1,36 +1,45 @@
-// Label/backend/index.js
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+// index.js
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// Root
+// Ruta raíz
 app.get("/", (req, res) => {
-  res.send("Backend activo ✅");
+  res.send("Backend de Asistente Virtual UNETI funcionando 🚀");
 });
 
-// Health
+// Ruta de salud
 app.get("/health", (req, res) => {
-  res.send("Servidor funcionando correctamente");
+  res.json({ status: "ok", message: "Servidor activo y saludable" });
 });
 
-// Search (simulado)
-app.get("/api/search", (req, res) => {
-  const query = req.query.q?.trim();
-  if (!query) {
-    return res.status(400).json({ error: "Falta el parámetro 'q'" });
+// Ruta de búsqueda (mock temporal)
+app.get("/api/search", async (req, res) => {
+  try {
+    const query = req.query.q;
+    if (!query || !query.trim()) {
+      return res.status(400).json({ error: "Falta el parámetro q" });
+    }
+
+    // Mock temporal: devuelve resultados simulados
+    const results = [
+      { title: `Resultado 1 para ${query}`, link: "https://es.wikipedia.org/wiki/" + encodeURIComponent(query) },
+      { title: `Resultado 2 para ${query}`, link: "https://www.google.com/search?q=" + encodeURIComponent(query) }
+    ];
+
+    return res.json({ query, results });
+  } catch (error) {
+    console.error("Error interno en /api/search:", error);
+    res.status(500).json({ error: "Error interno en búsqueda" });
   }
-  res.json({ resultado: `Respuesta simulada para: ${query}` });
 });
 
-// Image generation (mock temporal)
+// Ruta de generación de imagen (mock temporal)
 app.post("/api/generate-image", async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -46,12 +55,12 @@ app.post("/api/generate-image", async (req, res) => {
 
     return res.json(data);
   } catch (error) {
-    console.error("Error interno:", error);
+    console.error("Error interno en /api/generate-image:", error);
     res.status(500).json({ error: "Error interno al generar la imagen" });
   }
 });
 
-
+// Arrancar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
