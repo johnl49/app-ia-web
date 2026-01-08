@@ -1,55 +1,34 @@
-const consultarBtn = document.getElementById("consultarBtn");
-const borrarBtn = document.getElementById("borrarBtn");
-const searchBox = document.getElementById("searchBox");
-const respuestaDiv = document.getElementById("respuesta");
+// URL del backend en Render
+const API_URL = "https://app-ia-web.onrender.com";
 
-consultarBtn.addEventListener("click", async () => {
-  const pregunta = searchBox.value.trim();
-  if (!pregunta) {
-    respuestaDiv.textContent = "⚠️ Escribe una consulta.";
-    return;
-  }
-
-  respuestaDiv.textContent = "⏳ Buscando...";
-
+// Función para consultar la IA
+async function consultarIA(consulta) {
   try {
-    const response = await fetch("http://localhost:3001/api/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: pregunta })
-    });
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-
-    // Mostrar resultados según la fuente
-    if (data.source === "wikipedia") {
-      respuestaDiv.innerHTML = `
-        <div class="result">
-          <strong>Resumen (Wikipedia):</strong>
-          <p>${data.summary}</p>
-          ${data.url ? `<a href="${data.url}" target="_blank">Ver más</a>` : ""}
-        </div>
-      `;
-    } else if (data.source === "google" && data.results?.length) {
-      respuestaDiv.innerHTML = data.results
-        .map(r => `
-          <div class="result">
-            <a href="${r.link}" target="_blank">${r.title}</a>
-            <p>${r.snippet}</p>
-          </div>
-        `)
-        .join("");
-    } else {
-      respuestaDiv.textContent = "Sin resultados.";
+    const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(consulta)}`);
+    
+    if (!response.ok) {
+      throw new Error("Error en la respuesta del servidor");
     }
-  } catch (err) {
-    console.error("Error detallado:", err);
-    respuestaDiv.textContent = "❌ Error al consultar la IA.";
-  }
-});
 
-borrarBtn.addEventListener("click", () => {
-  searchBox.value = "";
-  respuestaDiv.textContent = "";
-});
+    const data = await response.json();
+    mostrarRespuesta(data);
+  } catch (error) {
+    console.error("❌ Error al consultar la IA:", error);
+    mostrarError("❌ Error al consultar la IA. Verifica que el backend esté activo en Render.");
+  }
+}
+
+// Función para mostrar la respuesta en pantalla
+function mostrarRespuesta(data) {
+  const contenedor = document.getElementById("resultado");
+  contenedor.innerHTML = `
+    <p><strong>Consulta:</strong> ${data.consulta}</p>
+    <p><strong>Resultado:</strong> ${data.resultado}</p>
+  `;
+}
+
+// Función para mostrar errores
+function mostrarError(mensaje) {
+  const contenedor = document.getElementById("resultado");
+  contenedor.innerHTML = `<p style="color:red">${mensaje}</p>`;
+}

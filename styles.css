@@ -1,86 +1,38 @@
-/* Estilos generales */
+/* Label/frontend/styles.css */
+:root {
+  --bg: #f7f7fb;
+  --text: #2c3e50;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --danger: #ef4444;
+  --card: #ffffff;
+  --border: #e5e7eb;
+}
+
+* { box-sizing: border-box; }
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f6f9;
-  color: #333;
+  margin: 0; padding: 24px; font-family: system-ui, Arial, sans-serif;
+  background: var(--bg); color: var(--text);
 }
+header { text-align: center; margin-bottom: 24px; }
+header h1 { margin: 0 0 8px; }
+header p { margin: 0; color: var(--muted); }
 
-/* Encabezado institucional */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #003366; /* Azul UNETI */
-  color: white;
-  padding: 20px;
-  text-align: center;
+main { max-width: 900px; margin: 0 auto; display: grid; gap: 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
 }
-
-header .logo {
-  height: 80px;
-  margin-right: 20px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.8em;
-}
-
-header p {
-  margin: 5px 0 0;
-  font-size: 1em;
-  font-style: italic;
-}
-
-/* Área principal */
-main {
-  padding: 30px;
-  text-align: center;
-}
-
-/* Caja de búsqueda */
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 input {
-  width: 60%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 2px solid #003366;
-  border-radius: 6px;
-  font-size: 1em;
+  flex: 1 1 280px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 16px;
 }
-
-/* Botones */
 button {
-  margin: 5px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #003366;
-  color: white;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.3s;
+  padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
 }
-
-button:hover {
-  background: #0055aa;
-}
-
-/* Caja de resultados */
-#respuesta {
-  margin-top: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  text-align: left;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#respuesta h3 {
-  margin-top: 0;
-  color: #003366;
-}
+button.primary { background: var(--primary); color: white; }
+button.danger { background: var(--danger); color: white; }
+.result { display: grid; gap: 10px; }
+.item { border-top: 1px dashed var(--border); padding-top: 10px; }
+img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }

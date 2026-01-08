@@ -1,7 +1,14 @@
 {
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Frontend IA UNETI con HTML, CSS y JS",
+  "main": "index.html",
   "scripts": {
-    "backend": "npm run dev --prefix Label/backend",
-    "frontend": "http-server Label -p 5500",
-    "start": "concurrently \"npm run backend\" \"npm run frontend\""
-  }
+    "start": "live-server"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "author": "John Lugo",
+  "license": "MIT"
 }

@@ -2,26 +2,95 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Asistente IA - UNETI</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Asistente IA UNETI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    input {
+      padding: 10px;
+      width: 300px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007acc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <img src="logo-uneti.jpg" alt="Logo UNETI" class="logo">
-    <div>
-      <h1>Materia: Inteligencia Artificial</h1>
-      <p>Desarrollado por John Lugo - UNETI</p>
-    </div>
-  </header>
+  <h1>Asistente IA UNETI</h1>
+  <p>Escribe tu consulta y recibe una respuesta:</p>
+  
+  <input type="text" id="consulta" placeholder="Ejemplo: Caracas">
+  <button onclick="buscar()">Buscar</button>
+  
+  <div id="resultado"></div>
 
-  <main>
-    <input type="text" id="searchBox" placeholder="Escribe tu consulta aquí...">
-    <button id="consultarBtn">🧠 Consultar IA</button>
-    <button id="borrarBtn">🗑️ Borrar</button>
+  <script>
+    // URL del backend en Render
+    const API_URL = "https://app-ia-web.onrender.com";
 
-    <div id="respuesta"></div>
-  </main>
+    async function buscar() {
+      const consulta = document.getElementById("consulta").value;
+      if (!consulta) {
+        mostrarError("⚠️ Por favor escribe una consulta.");
+        return;
+      }
+      await consultarIA(consulta);
+    }
 
-  <script src="frontend.js"></script>
+    async function consultarIA(consulta) {
+      try {
+        const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(consulta)}`);
+        
+        if (!response.ok) {
+          throw new Error("Error en la respuesta del servidor");
+        }
+
+        const data = await response.json();
+        mostrarRespuesta(data);
+      } catch (error) {
+        console.error("❌ Error al consultar la IA:", error);
+        mostrarError("❌ Error al consultar la IA. Verifica que el backend esté activo en Render.");
+      }
+    }
+
+    function mostrarRespuesta(data) {
+      const contenedor = document.getElementById("resultado");
+      contenedor.innerHTML = `
+        <p><strong>Consulta:</strong> ${data.consulta}</p>
+        <p><strong>Resultado:</strong> ${data.resultado}</p>
+      `;
+    }
+
+    function mostrarError(mensaje) {
+      const contenedor = document.getElementById("resultado");
+      contenedor.innerHTML = `<p style="color:red">${mensaje}</p>`;
+    }
+  </script>
 </body>
 </html>

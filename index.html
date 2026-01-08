@@ -1,23 +1,118 @@
+<!-- Label/frontend/index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Asistente Virtual UNETI</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <h1>Asistente Virtual UNETI</h1>
-  <h3>Desarrollado por John Lugo - Universidad Nacional Experimental de las Telecomunicaciones e Informática</h3>
+  <header>
+    <h1>Asistente Virtual UNETI</h1>
+    <p>Desarrollado por John Lugo — Universidad Nacional Experimental de las Telecomunicaciones e Informática</p>
+  </header>
 
-  <div class="container">
-    <input type="text" id="searchBox" placeholder="Escribe tu consulta aquí...">
-    <div class="buttons">
-      <button id="consultarBtn">🧠 Consultar IA</button>
-      <button id="borrarBtn">🗑️ Borrar</button>
-    </div>
-    <div id="respuesta" aria-live="polite"></div>
-  </div>
+  <main>
+    <section class="card">
+      <h2>Motor de búsqueda</h2>
+      <div class="row">
+        <input id="query" type="text" placeholder="Escribe tu búsqueda..." />
+        <button id="searchBtn" class="primary">🧠 Consultar</button>
+        <button id="clearSearchBtn" class="danger">🗑️ Borrar</button>
+      </div>
+      <div id="searchResult" class="result"></div>
+    </section>
 
-  <script src="app.js"></script>
+    <section class="card">
+      <h2>Generación de imagen (mock)</h2>
+      <div class="row">
+        <input id="prompt" type="text" placeholder="Describe la imagen..." />
+        <button id="imageBtn" class="primary">🧠 Generar</button>
+        <button id="clearImageBtn" class="danger">🗑️ Borrar</button>
+      </div>
+      <div id="imageResult" class="result"></div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "http://localhost:4000"; // Cambia a tu URL en Render al desplegar
+
+    // Búsqueda con Wikipedia API
+    const searchBtn = document.getElementById("searchBtn");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const queryInput = document.getElementById("query");
+    const searchResult = document.getElementById("searchResult");
+
+    searchBtn.addEventListener("click", async () => {
+      const q = queryInput.value.trim();
+      if (!q) {
+        searchResult.innerHTML = "<p>❌ Ingresa un término de búsqueda.</p>";
+        return;
+      }
+      try {
+        const res = await fetch(`https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`);
+        const data = await res.json();
+        const items = data?.query?.search || [];
+        if (items.length === 0) {
+          searchResult.innerHTML = "<p>❌ No se encontraron resultados.</p>";
+          return;
+        }
+        searchResult.innerHTML = "<h3>Resultados:</h3>";
+        items.slice(0, 5).forEach(item => {
+          const url = `https://es.wikipedia.org/wiki/${encodeURIComponent(item.title)}`;
+          searchResult.innerHTML += `
+            <article class="item">
+              <strong>${item.title}</strong>
+              <p>${item.snippet}...</p>
+              <a href="${url}" target="_blank" rel="noopener">Leer más</a>
+            </article>
+          `;
+        });
+      } catch (err) {
+        console.error(err);
+        searchResult.innerHTML = "<p>❌ Error al consultar Wikipedia.</p>";
+      }
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+      queryInput.value = "";
+      searchResult.innerHTML = "";
+    });
+
+    // Generación de imagen (llama al backend con mock)
+    const imageBtn = document.getElementById("imageBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+    const promptInput = document.getElementById("prompt");
+    const imageResult = document.getElementById("imageResult");
+
+    imageBtn.addEventListener("click", async () => {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        imageResult.innerHTML = "<p>❌ Ingresa un prompt.</p>";
+        return;
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/generate-image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+        if (!data?.url) {
+          imageResult.innerHTML = "<p>❌ Error al consultar la IA.</p>";
+          return;
+        }
+        imageResult.innerHTML = `<img src="${data.url}" alt="Imagen generada" />`;
+      } catch (err) {
+        console.error(err);
+        imageResult.innerHTML = "<p>❌ Error al conectar con el backend.</p>";
+      }
+    });
+
+    clearImageBtn.addEventListener("click", () => {
+      promptInput.value = "";
+      imageResult.innerHTML = "";
+    });
+  </script>
 </body>
 </html>
