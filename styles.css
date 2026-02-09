@@ -36,3 +36,18 @@ button.danger { background: var(--danger); color: white; }
 .result { display: grid; gap: 10px; }
 .item { border-top: 1px dashed var(--border); padding-top: 10px; }
 img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+
+.info-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.info-section img {
+    width: 80%;
+    border-radius: 12px;
+    margin-top: 15px;
+    box-shadow: 0 0 15px #6a00ff;
+}
